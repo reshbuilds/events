@@ -16,16 +16,24 @@ header = {
 try:
   resp = requests.get(url,headers=header)
   if resp.status_code == 200:
-    soup=BeautifulSoup(resp.text)
+    soup=BeautifulSoup(resp.text,features="html.parser")
     json_data = soup.find(id="Evenemangslistning").next_sibling
     json_dict = json.loads(json_data)
 
-    events_list = json_dict["searchHits"]
-    events_total = json_dict["searchInfo"]["totalHits"]
+    events_lan_list = json_dict["searchHits"]
+    events_lan_total = json_dict["searchInfo"]["totalHits"]
 
-    print(events_total,len(events_list))
+    events_lan_list_filepath = "src/data/events_lan_list.json"
+    with open(events_lan_list_filepath, "w", encoding="utf-8") as f:
+      json.dump(events_lan_list, f, ensure_ascii=False, indent=4)
+    
+    with open(events_lan_list_filepath, "r", encoding="utf-8") as f:
+        e = json.load(f)
+        if events_lan_total==len(e):
+          print("Event data (" + str(events_lan_total) + ") from Jönköping Evenemangskalender has been successfully scraped and saved")
   else:
     print("The website is down. Please try again later : ",resp.status_code)
 except Exception as e:
-  print("Invalid website. Please check the following error message :", e)
+  print("Problems with scraping the website. Please check the following error message :", e)
+
 
