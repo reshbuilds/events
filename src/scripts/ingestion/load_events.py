@@ -2,6 +2,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import datetime
 
 # Scrape event data from Jönköping municipality website
 
@@ -30,7 +31,7 @@ try:
     with open(events_lan_list_filepath, "r", encoding="utf-8") as f:
         e = json.load(f)
         if events_lan_total==len(e):
-          print("Event data (" + str(events_lan_total) + ") from Jönköping Evenemangskalender has been successfully scraped and saved")
+          print(datetime.datetime.now().strftime('%d %b %Y, %H:%M')," : Event data (" + str(events_lan_total) + " events) from Jönköping Evenemangskalender has been successfully scraped and saved")
   else:
     print("The website is down. Please try again later : ",resp.status_code)
 except Exception as e:
