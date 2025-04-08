@@ -24,17 +24,16 @@ try:
     events_lan_list = json_dict["searchHits"]
     events_lan_total = json_dict["searchInfo"]["totalHits"]
 
-    events_lan_list_filepath = "src/data/events_lan_list.json"
+    events_lan_list_filepath = "src/data/raw/events_lan_list.json"
     with open(events_lan_list_filepath, "w", encoding="utf-8") as f:
       json.dump(events_lan_list, f, ensure_ascii=False, indent=4)
     
     with open(events_lan_list_filepath, "r", encoding="utf-8") as f:
-        e = json.load(f)
-        if events_lan_total==len(e):
+        ev = json.load(f)
+        if events_lan_total==len(ev):
           print(datetime.datetime.now().strftime('%d %b %Y, %H:%M')," : Event data (" + str(events_lan_total) + " events) from Jönköping Evenemangskalender has been successfully scraped and saved")
   else:
     print("The website is down. Please try again later : ",resp.status_code)
 except Exception as e:
   print("Problems with scraping the website. Please check the following error message :", e)
-
 
