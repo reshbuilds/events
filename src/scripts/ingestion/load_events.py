@@ -16,6 +16,7 @@ lan_header = {
 }
 
 try:
+  time_now = datetime.datetime.now()
   lan_resp = requests.get(lan_url,headers=lan_header)
   if lan_resp.status_code == 200:
     lan_soup = BeautifulSoup(lan_resp.text,features="html.parser")
@@ -25,14 +26,14 @@ try:
     events_lan_list = lan_json_dict["searchHits"]
     events_lan_total = lan_json_dict["searchInfo"]["totalHits"]
 
-    events_lan_list_filepath = "src/data/raw/events_lan_list.json"
+    events_lan_list_filepath = "src/data/raw/events_lan_list_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
     with open(events_lan_list_filepath, "w", encoding="utf-8") as f:
       json.dump(events_lan_list, f, ensure_ascii=False, indent=4)
     
     with open(events_lan_list_filepath, "r", encoding="utf-8") as f:
         lan_ev = json.load(f)
         if events_lan_total==len(lan_ev):
-          print(datetime.datetime.now().strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(lan_ev)) + " events) from Jönköping Evenemangskalender has been successfully scraped and saved")
+          print(time_now.strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(lan_ev)) + " events) from Jönköping Evenemangskalender has been successfully scraped and saved")
   else:
     print("The website is down. Please try again later : ",lan_resp.status_code)
 except Exception as e:
@@ -48,6 +49,7 @@ try:
     dj_soup = BeautifulSoup(dj_resp.text,features="html.parser")
     events_dj_total = json.loads(dj_soup.text)["total_experiences"]
     
+    time_now = datetime.datetime.now()
     events_dj_list = []
     for skip_val in range(0,events_dj_total+1,18):
       dj_url_t = "https://jkpg.com/sv/step/api/v1/public-experience-list/?strict=0&skip=" + str(skip_val) + "&take=18"
@@ -60,16 +62,16 @@ try:
         print("The website is down. Please try again later : ",dj_resp_t.status_code)
         break
       
-    events_dj_list_filepath = "src/data/raw/events_dj_list.json"
+    events_dj_list_filepath = "src/data/raw/events_dj_list_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
     with open(events_dj_list_filepath, "w", encoding="utf-8") as f:
       json.dump(events_dj_list, f, ensure_ascii=False, indent=4)
     
     with open(events_dj_list_filepath, "r", encoding="utf-8") as f:
         dj_ev = json.load(f)
         if events_dj_total==len(dj_ev):
-          print(datetime.datetime.now().strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(dj_ev)) + " events) from Destination Jönköping has been successfully scraped and saved")
+          print(time_now.strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(dj_ev)) + " events) from Destination Jönköping has been successfully scraped and saved")
   else:
-    print("The website is down. Please try again later : ",resp.status_code)
+    print("The website is down. Please try again later : ",dj_resp.status_code)
 except Exception as e:
   print("Invalid website. Please check the following error message :", e)
 
