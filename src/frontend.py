@@ -1,7 +1,7 @@
 
 import streamlit as st
 
-from src.scripts.ingestion.load_events import *
+from src.load_events import *
 
 if 'gov' not in st.session_state:
     st.session_state.gov = ""

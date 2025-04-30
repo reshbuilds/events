@@ -1,9 +1,10 @@
 
 import requests
 from bs4 import BeautifulSoup
-import os
 import json
 import datetime
+
+from src.paths import *
 
 # Scrape event data from Jönköping municipality website
 def get_events_gov():
@@ -26,7 +27,7 @@ def get_events_gov():
       events_lan_list = lan_json_dict["searchHits"]
       events_lan_total = lan_json_dict["searchInfo"]["totalHits"]
 
-      events_lan_list_filepath = "src/data/raw/events_lan_list_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
+      events_lan_list_filepath = RAW_PATH + "events_lan_list_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
       with open(events_lan_list_filepath, "w", encoding="utf-8") as f:
         json.dump(events_lan_list, f, ensure_ascii=False, indent=4)
       
@@ -62,7 +63,7 @@ def get_events_private():
           return("The website is down. Please try again later : ",dj_resp_t.status_code)
           #break
         
-      events_dj_list_filepath = "src/data/raw/events_dj_list_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
+      events_dj_list_filepath = RAW_PATH + "events_dj_list_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
       with open(events_dj_list_filepath, "w", encoding="utf-8") as f:
         json.dump(events_dj_list, f, ensure_ascii=False, indent=4)
       
