@@ -10,12 +10,9 @@ from src.paths import *
 def get_events_lan():
   lan_url = "https://www.jonkoping.se/evenemangskalender/evenemangskalender?filters=%7B%7D&page=1000&pageMode=all&query=&sv.12.27b6a9cc17cdfe279de33aae.route=%2Fsearch&sv.target=12.27b6a9cc17cdfe279de33aae&timestamp=1743355834489"
   lan_header = {
-      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      "Referer": "https://www.jonkoping.se/",
-      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-      "Accept-Language": "en-US,en;q=0.5",
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+      "Accept": "application/json"
   }
-  lan_file = "events_lan_list"
   try:
     time_now = datetime.datetime.now()
     resp = requests.get(lan_url,headers=lan_header)
@@ -27,84 +24,60 @@ def get_events_lan():
       events_list = json_dict["searchHits"]
       events_total = json_dict["searchInfo"]["totalHits"]
 
-      events_list_filepath = RAW_PATH + "/" + lan_file + "_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
-      print(events_list_filepath)
-      with open(events_list_filepath, "w", encoding="utf-8") as f:
-        json.dump(events_list, f, ensure_ascii=False, indent=4)
-      
-      with open(events_list_filepath, "r", encoding="utf-8") as f:
-          ev = json.load(f)
-          if events_total==len(ev):
-            return(time_now.strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(ev)) + " events) from Jönköping Evenemangskalender has been successfully scraped and saved")
+      return events_total,events_list
     else:
-      return("The website is down. Please try again later : ",resp.status_code)
+      return -1,f"The website is down. Please try again later: {resp.status_code}"
   except Exception as e:
-    return("Problems with scraping the website. Please check the following error message :", e)
-  
+    return -1,f"Problems with scraping the website. Please check the following error message : {e}"
 
 
 # Scrape event data from Destination Jönköping event website
 def get_events_tour():
   tour_url = "https://www.jonkoping.se/rest-api/Evenemangsdata/search?categories_appfilters=&numHits=999"
-  tour_file = "events_tour_list"
+  tour_header = {
+      "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+      "Accept": "application/json"
+  }
   try:
     time_now = datetime.datetime.now()
-    resp = requests.get(tour_url)
+    resp = requests.get(tour_url,headers=tour_header)
     if resp.status_code == 200:
-      soup = BeautifulSoup(resp.text,features="html.parser")
-      json_data = soup.find(id="Evenemangslistning").next_sibling
-      json_dict = json.loads(json_data)
+      json_dict = json.loads(resp.text)
 
       events_list = json_dict["searchHits"]
       events_total = json_dict["searchInfo"]["totalHits"]
 
-      events_list_filepath = RAW_PATH + "/" + tour_file + "_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
-      print(events_list_filepath)
-      with open(events_list_filepath, "w", encoding="utf-8") as f:
-        json.dump(events_list, f, ensure_ascii=False, indent=4)
-      
-      with open(events_list_filepath, "r", encoding="utf-8") as f:
-          ev = json.load(f)
-          if events_total==len(ev):
-            return(time_now.strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(ev)) + " events) from Jönköping Evenemangskalender has been successfully scraped and saved")
+      return events_total,events_list
     else:
-      return("The website is down. Please try again later : ",resp.status_code)
+      return -1,f"The website is down. Please try again later: {resp.status_code}"
   except Exception as e:
-    return("Problems with scraping the website. Please check the following error message :", e)
+    return -1,f"Problems with scraping the website. Please check the following error message : {e}"
   
-# # Scrape event data from Destination Jönköping's JKPG website (OLD WEBSITE)
-# def get_events_private(): 
-#   try:
-#     dj_url = "https://jkpg.com/sv/step/api/v1/public-experience-list/?strict=0&skip=10000&take=18"
-#     dj_resp = requests.get(dj_url)
-#     if dj_resp.status_code == 200:
-#       dj_soup = BeautifulSoup(dj_resp.text,features="html.parser")
-#       events_dj_total = json.loads(dj_soup.text)["total_experiences"]
-      
-#       time_now = datetime.datetime.now()
-#       events_dj_list = []
-#       for skip_val in range(0,events_dj_total+1,18):
-#         dj_url_t = "https://jkpg.com/sv/step/api/v1/public-experience-list/?strict=0&skip=" + str(skip_val) + "&take=18"
-#         dj_resp_t = requests.get(dj_url_t)
-#         if dj_resp_t.status_code == 200:
-#           dj_soup_t = BeautifulSoup(dj_resp_t.text,features="html.parser")
-#           el = json.loads(dj_soup_t.text)["experiences"]
-#           events_dj_list += el
-#         else:
-#           return("The website is down. Please try again later : ",dj_resp_t.status_code)
-#           #break
-        
-#       events_dj_list_filepath = RAW_PATH + "/events_dj_list_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
-#       with open(events_dj_list_filepath, "w", encoding="utf-8") as f:
-#         json.dump(events_dj_list, f, ensure_ascii=False, indent=4)
-      
-#       with open(events_dj_list_filepath, "r", encoding="utf-8") as f:
-#           dj_ev = json.load(f)
-#           if events_dj_total==len(dj_ev):
-#             return(time_now.strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(dj_ev)) + " events) from Destination Jönköping has been successfully scraped and saved")
-#     else:
-#       return("The website is down. Please try again later : ",dj_resp.status_code)
-#   except Exception as e:
-#     return("Invalid website. Please check the following error message :", e)
+# Consilidate event data by removing duplicates
+def get_events_jkpg():
+  time_now = datetime.datetime.now()
+  lan_events_total,lan_events_list  = get_events_lan()
+  tour_events_total,tour_events_list = get_events_tour()
+  if lan_events_total!=-1 or tour_events_total!=-1:
+    if any(ev in tour_events_list for ev in lan_events_list):
+      events_list = tour_events_list
+      for ev in lan_events_list:
+        if ev not in tour_events_list:
+          events_list.append(ev)
+    else :
+      events_list = lan_events_list + tour_events_list
+    
+    events_list_filepath = RAW_PATH + "/events_raw_" + time_now.strftime('%d_%m_%Y_%H%M') + ".json"
+    with open(events_list_filepath, "w", encoding="utf-8") as f:
+      json.dump(events_list, f, ensure_ascii=False, indent=4)
 
+    with open(events_list_filepath, "r", encoding="utf-8") as f:
+      ev = json.load(f)
+      if len(events_list)==len(ev):
+        return(time_now.strftime('%d %b %Y, %H:%M')," : Event data (" + str(len(ev)) + " events) from Jönköping websites have been successfully scraped and saved")
+      else:
+        return("Problems with scraping the website. Please try again later")
+  else :
+     return("Problems with scraping the website. Please try again later")
 
+get_events_jkpg()
